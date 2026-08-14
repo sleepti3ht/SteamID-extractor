@@ -1,60 +1,45 @@
-# Steam ID Extractor
+# Steam ID Extractor (Private Use)
 
-Extract SteamID64 from a list of URLs (e.g. `inventory` pages).
+Extract SteamID64 (17-digit numbers) from any text, especially from Steam inventory URLs.
 
 ## Features
 
-- Extracts all SteamID64 (17-digit) from any text.
-- Handles both user URLs (`/id/.../inventory`) and profile URLs (`/profiles/.../inventory`).
-- Returns unique IDs only.
-- Simple CLI, no external dependencies.
+- Works with both `/id/username/inventory` and `/profiles/12345678901234567/inventory` URLs
+- Handles fragmented or malformed lines
+- Outputs clean list of unique IDs
+- No external dependencies
+- Private — no license
 
-## Installation
+## Quick Start
 
-No installation required. Requires Python 3.6+.
+1. Put your inventory URLs into `urls.txt` (one per line or all in one line)
+2. Run:
+   ```bash
+   python extract_steamids.py
+   ```
+3. Get your list in `steamids.txt`
 
-```bash
-# Clone or download the script
-git clone <repo-url>
-cd extract_steam_ids
+## Example
+
+Input in `urls.txt`:
 ```
-
-## Usage
-
-### From a file
-
-```bash
-python extract_steam_ids.py < urls.txt
-```
-
-### From stdin
-
-```bash
-cat urls.txt | python extract_steam_ids.py
-```
-
-### From a string (Python)
-
-```python
-from extract_steam_ids import extract_steam_ids_from_text
-
-text = """
-https://steamcommunity.com/id/ExampleUser/inventory
+https://steamcommunity.com/profiles/76561199516149257/inventory#570_2_29100785753
+https://steamcommunity.com/id/SomeUser/inventory
 https://steamcommunity.com/profiles/76561198000000000/inventory
-https://steamcommunity.com/id/AnotherUser/inventory
-"""
-
-steam_ids = extract_steam_ids_from_text(text)
-print("\n".join(sorted(steam_ids)))
 ```
 
-## Output format
-
-One SteamID64 per line, sorted ascending:
-
+Output in `steamids.txt`:
 ```
 76561198000000000
-76561198111111111
-76561198922222222
+76561199516149257
 ```
 
+## Requirements
+
+- Python 3.6+
+
+## Notes
+
+- This tool is for private use.
+- Not intended for public distribution.
+- No license is granted.
