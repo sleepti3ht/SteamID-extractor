@@ -1,45 +1,88 @@
-# Steam ID Extractor (Private Use)
 
-Extract SteamID64 (17-digit numbers) from any text, especially from Steam inventory URLs.
+<div align="center">
 
-## Features
+# Steam id extractor
 
-- Works with both `/id/username/inventory` and `/profiles/12345678901234567/inventory` URLs
-- Handles fragmented or malformed lines
-- Outputs clean list of unique IDs
-- No external dependencies
-- Private — no license
+[![python](https://img.shields.io/badge/python-3.6+-black?style=flat&logo=python&color=18181b)](https://python.org)
+[![deps](https://img.shields.io/badge/dependencies-zero-black?style=flat&color=18181b)]()
+[![io](https://img.shields.io/badge/io-streaming-black?style=flat&color=18181b)]()
+[![status](https://img.shields.io/badge/status-private-black?style=flat&color=18181b)]()
 
-## Quick Start
+</div>
 
-1. Put your inventory URLs into `urls.txt` (one per line or all in one line)
-2. Run:
-   ```bash
-   python extract_steamids.py
-   ```
-3. Get your list in `steamids.txt`
+> ⚡ Extract and deduplicate SteamID64s from raw text and inventory URLs with zero dependencies.
 
-## Example
+Handles `/id/username` and `/profiles/` formats.
+Upstream text dumps build the foundation; `steam-id-extractor` adds strict validation and O(1) memory processing.
 
-Input in `urls.txt`:
-```
-https://steamcommunity.com/profiles/76561199516149257/inventory#570_2_29100785753
-https://steamcommunity.com/id/SomeUser/inventory
-https://steamcommunity.com/profiles/76561198000000000/inventory
+## Get started
+
+```bash
+python extract_steamids.py
 ```
 
-Output in `steamids.txt`:
+> Ensure your raw data is placed in `urls.txt` before execution. Output is automatically written to `steamids.txt`.
+
+## After extraction
+
+```bash
+cat steamids.txt
 ```
-76561198000000000
-76561199516149257
+
+- clean output: one 17-digit ID per line
+- deduplicated: `set()` ensures zero duplicates
+- sorted: deterministic output for easy diffing
+- malformed lines ignored silently
+- tweak regex patterns in `extract_steamids.py` if custom formats appear
+
+## ⚙️ Engineering Details
+
+**🧠 Core Logic**
+
+- pre-compiled regex (`re.compile`) for minimal overhead
+- strict 17-digit validation (`^7656\d{14}$`)
+- handles fragmented or broken URL strings
+
+**💾 Memory Management**
+
+- streaming I/O (`for line in file`) instead of `.read()`
+- O(1) memory footprint regardless of input file size
+- prevents OOM (Out of Memory) crashes on large dumps
+
+**🛡️ Edge Cases**
+
+- ignores false positives (non-Steam 17-digit numbers)
+- safely handles missing `urls.txt` with graceful exit
+- UTF-8 encoding enforced for cross-platform compatibility
+
+## Why steam-id-extractor
+
+A quick bash grep or naive Python script feels like a toy. Memory spikes, regex compilation overhead, and false positives: chores you hit when scaling data extraction.
+
+`steam-id-extractor` handles them by default and stays close to Python's standard library. No pip installs, no virtual environments, no drift.
+
+**🦾 Better for automation:** predictable standard I/O, built for cron jobs and systemd timers without external wrappers.
+
+## How it works
+
+```text
+read urls.txt (stream)
+  → compile regex pattern
+  → iterate lines (O(1) memory)
+  → extract & validate 17-digit IDs
+  → deduplicate via hash set
+  → write sorted output to steamids.txt
 ```
 
-## Requirements
+No external APIs. Just a small, highly optimized regex surface on top of local file streams.
 
-- Python 3.6+
+## ⚠️ Private Use Notice
 
-## Notes
+- This tool is for private infrastructure and local data processing.
+- Not intended for public distribution or commercial SaaS.
+- No license is granted. Use at your own risk.
 
-- This tool is for private use.
-- Not intended for public distribution.
-- No license is granted.
+---
+
+📖 Need network resolution for `/id/` aliases? Implement exponential backoff and caching to avoid Steam API HTTP 429 rate limits.
+
